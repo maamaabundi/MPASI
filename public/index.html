@@ -439,7 +439,7 @@ const USIA_OPTIONS = [
   {v:10, label:'10 Bulan+'},
   {v:12, label:'12 Bulan+'},
 ];
-const TEKSTUR_OPTIONS = ['Lembut/Lumat','Lembut','Padat'];
+const TEKSTUR_OPTIONS = ['Lumat','Padat'];
 
 let favorites = [];
 try{
@@ -626,17 +626,23 @@ function openRecipe(idx, pushHash){
   $('#modal-backdrop').hidden = false;
   document.body.style.overflow='hidden';
   if(pushHash!==false){
-    try{ history.pushState({mpasiModal:idx}, '', '#resep-r'+String(idx).padStart(3,'0')); }catch(e){}
+    try{ history.pushState({mpasiModal:idx}, '', '#resep-r'+String(idx).padStart(3,'0')); modalPushed = true; }catch(e){}
   }
   $('#modal-close').focus();
 }
+// true while the open modal owns a history entry we pushed, so closing it can step back instead of leaving a dead entry
+let modalPushed = false;
 function closeRecipe(popHash){
   state.openIdx = null;
   $('#modal-backdrop').hidden = true;
   document.body.style.overflow='';
-  if(popHash!==false && location.hash.startsWith('#resep-r')){
-    try{ history.replaceState('', document.title, location.pathname+location.search); }catch(e){}
+  if(popHash!==false){
+    if(modalPushed){ modalPushed = false; history.back(); return; }
+    if(location.hash.startsWith('#resep-r')){
+      try{ history.replaceState('', document.title, location.pathname+location.search); }catch(e){}
+    }
   }
+  modalPushed = false;
 }
 function clockIcon(){ return '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>'; }
 function bowlIcon(){ return '<svg class="icon" viewBox="0 0 24 24"><path d="M4 11a8 8 0 0 0 16 0Z"/><path d="M4 11h16"/></svg>'; }
